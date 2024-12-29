@@ -3,15 +3,34 @@ import InputBox from "../components/InputBox";
 import googleIcon from "../imgs/google.png";
 import { Link } from "react-router-dom";
 import AnimationWrapper from "../common/AnimationWrapper";
+import { useRef } from "react";
 
 const UserAuthForm = ({ type }) => {
+
+  const authForm = useRef(null);
+
+  const handleSubmit =(event)=>{
+    event.preventDefault();
+    console.log(authForm.current);
+
+    // formData
+    const form = new FormData(authForm.current);
+    let formData = {};
+
+    for(let [key, value] of form.entries())
+    {
+      formData[key] = value;
+    }
+
+    console.log(formData);
+  }
   return (
     <div>
       <AnimationWrapper keyValue={type}>
         <section className="h-cover flex items-center justify-center ">
-          <form className="w-[80%] max-w-[400px]">
+          <form ref={authForm} className="w-[80%] max-w-[400px]" onSubmit={handleSubmit}>
             <h1 className="text-4xl font-bold font-gelasio capitalize text-center mb-24">
-              {type == "sign-in" ? "Welcome Back" : "Join Us Today"}
+              {type === "sign-in" ? "Welcome Back" : "Join Us Today"}
             </h1>
 
             {type != "sign-in" ? (
@@ -39,7 +58,8 @@ const UserAuthForm = ({ type }) => {
               icon="fi-rr-key"
             />
 
-            <button className="btn-dark center mt-14" type="submit">
+            <button className="btn-dark center mt-14" type="submit"
+            >
               {type.replace("-", " ")}
             </button>
 
