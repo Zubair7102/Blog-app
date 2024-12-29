@@ -42,6 +42,8 @@ const generateUserName = async (email) => {
 
   return username;
 };
+
+// SignUp
 server.post("/signup", async (req, res) => {
   let { fullname, email, password } = req.body;
 
@@ -100,6 +102,57 @@ server.post("/signup", async (req, res) => {
     return res.status(500).json({ error: "Server error" });
   }
 });
+
+// SignIn
+server.post("/signin", (req, res) => {
+    let { email, password } = req.body;
+  
+    User.findOne({ "personal_info.email": email })
+      .then((user) => {
+        if (!user) {
+          return res.status(403).json({
+            success: false,
+            error: "Email not found"
+          });
+        }
+  
+        // Compare the provided password with the stored hashed password
+        bcrypt.compare(password, user.personal_info.password, (error, result) => {
+          if (error) {
+            return res.status(500).json({
+              success: false,
+              message: "An error occurred while logging in, please try again."
+            });
+          }
+  
+          if (!result) {
+            return res.status(403).json({
+              success: false,
+              message: "Incorrect password"
+            });
+          }
+  
+          // If password comparison is successful
+          return res.status(200).json(formatDataToSend(user));
+        });
+  
+        // Remove this part to avoid sending multiple responses
+        // console.log(user);
+        // return res.json({
+        //   success: true,
+        //   message: "Successfully retrieved user data",
+        // });
+      })
+      .catch((error) => {
+        console.log(error.message);
+        return res.status(500).json({
+          success: false,
+          error: error.message,
+        });
+      });
+  });
+  
+  
 
 server.listen(PORT, () => {
   console.log("Listening on port -> " + PORT);
